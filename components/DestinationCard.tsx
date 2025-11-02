@@ -41,7 +41,7 @@ export default function DestinationCard({ data }: { data: any }) {
             <h3 className="text-lg font-semibold">{name}{country ? `, ${country}` : ""}</h3>
             <p className="text-sm text-gray-500 mt-1 capitalize">{desc || "Weather unavailable"}</p>
           </div>
-          <div className="text-sm text-gray-400">ID: {data.id}</div>
+          
         </div>
 
         <div className="mt-4 flex items-center justify-between">

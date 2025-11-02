@@ -4,7 +4,11 @@ import Footer from "../components/Footer";
 
 export const metadata = {
   title: "Mood-Based Travel Recommender",
-  description: "Suggest travel destinations based on your mood"
+  description: "Suggest travel destinations based on your mood",
+   icons: {
+    icon: "/logo.svg", // 👈 your favicon path
+  },
+  
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

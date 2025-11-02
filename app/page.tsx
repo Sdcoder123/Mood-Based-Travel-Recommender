@@ -2,82 +2,92 @@ import MoodSelector from "@/components/MoodSelector";
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-sky-50 via-white to-rose-50">
-      {/* Decorative blurred shapes */}
-      <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full bg-gradient-to-tr from-pink-300 to-indigo-400 opacity-30 blur-3xl animate-blob" />
-      <div className="pointer-events-none absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-gradient-to-tr from-yellow-300 to-green-300 opacity-25 blur-3xl animate-blob animation-delay-2000" />
+    <main className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-blue-100 via-white to-pink-100">
+      {/* 🌈 Textured background layers */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.6),transparent_70%)]"></div>
+      <div className="absolute inset-0 bg-[url('/noise-texture.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
+
+      {/* Blurred gradient blobs for depth */}
+      <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full bg-gradient-to-tr from-pink-400 to-indigo-500 opacity-30 blur-3xl animate-blob" />
+      <div className="pointer-events-none absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-gradient-to-tr from-yellow-300 to-teal-400 opacity-25 blur-3xl animate-blob animation-delay-2000" />
 
       <section className="z-10 w-full max-w-6xl px-6 py-12">
         <div className="text-center">
-          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-fuchsia-600 to-rose-500 animate-gradient-x">
+          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-fuchsia-600 to-rose-500 animate-gradient-x drop-shadow-[0_3px_6px_rgba(0,0,0,0.15)]">
             Find your next trip based on your mood 🌤️
           </h1>
-          <p className="mx-auto max-w-2xl text-lg text-gray-600 mb-8">
-            Tell us how you feel and we’ll suggest destinations with photos and
-            live weather — personalized and delightful.
+
+          <p className="mx-auto max-w-2xl text-lg text-gray-700 mb-8 leading-relaxed">
+            Tell us how you feel and we’ll suggest destinations with photos and live weather — uniquely tuned to your vibe.
           </p>
 
+          {/* 🎭 Mood Selection Card */}
           <div className="mx-auto max-w-2xl">
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-white/60">
-              <div className="mb-4 text-sm text-gray-500">
+            <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/60 hover:shadow-[0_0_25px_rgba(99,102,241,0.3)] transition">
+              <div className="mb-4 text-sm text-gray-500 tracking-wide uppercase">
                 Pick a mood to get started
               </div>
-              <div className="transform-gpu will-change-transform">
+
+              <div className="transform-gpu">
                 <MoodSelector />
               </div>
 
-              <div className="mt-6 flex items-center justify-center gap-4">
+              {/* Buttons */}
+              <div className="mt-8 flex items-center justify-center gap-5">
                 <a
                   href="/recommend?mood=happy"
-                  className="inline-flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-full font-medium shadow-lg transition-transform transform hover:-translate-y-1"
+                  className="inline-flex items-center gap-3 bg-gradient-to-r from-indigo-500 to-pink-500 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:shadow-[0_0_20px_rgba(236,72,153,0.6)] transition-transform transform hover:-translate-y-1 hover:scale-105"
                 >
-                  Try sample: Happy
+                  ✨ Try “Happy” Mood
                 </a>
                 <a
                   href="/recommend"
-                  className="text-sm text-gray-600 hover:underline"
+                  className="text-sm text-indigo-700 hover:underline hover:text-pink-600 transition"
                 >
-                  See all recommendations
+                  See all recommendations →
                 </a>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="rounded-xl p-6 bg-white/80 backdrop-blur-sm shadow hover:shadow-2xl transition">
-            <h3 className="text-lg font-semibold mb-2">Live weather highlights</h3>
-            <p className="text-sm text-gray-600">
-              Current temperatures and conditions are fetched live for each
-              destination — prominently displayed on cards.
-            </p>
-          </div>
-
-          <div className="rounded-xl p-6 bg-white/80 backdrop-blur-sm shadow hover:shadow-2xl transition">
-            <h3 className="text-lg font-semibold mb-2">Beautiful imagery</h3>
-            <p className="text-sm text-gray-600">
-              High-quality photos from Unsplash to help you visualise your next
-              trip.
-            </p>
-          </div>
-
-          <div className="rounded-xl p-6 bg-white/80 backdrop-blur-sm shadow hover:shadow-2xl transition">
-            <h3 className="text-lg font-semibold mb-2">Deployable to Vercel</h3>
-            <p className="text-sm text-gray-600">
-              Serverless API routes make this app easy to host on Vercel with
-              environment variables for keys.
-            </p>
-          </div>
+        {/* 💡 Feature highlights */}
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+          {[
+            {
+              title: "Live Weather Insights",
+              desc: "Each recommendation comes with real-time weather updates — perfect for spontaneous getaways.",
+              color: "from-blue-200 to-blue-50",
+            },
+            {
+              title: "Vibrant Imagery",
+              desc: "Breathtaking Unsplash photos bring each destination to life — before you even pack your bags.",
+              color: "from-pink-200 to-pink-50",
+            },
+            {
+              title: "Mood Travel",
+              desc: "Experience AI-powered suggestions that match your emotions — turning feelings into destinations.",
+              color: "from-teal-200 to-teal-50",
+            },
+          ].map((feature, i) => (
+            <div
+              key={i}
+              className={`rounded-2xl p-6 bg-gradient-to-br ${feature.color} shadow hover:shadow-xl border border-white/50 hover:-translate-y-1 transition-transform`}
+            >
+              <h3 className="text-lg font-semibold mb-2 text-gray-800">{feature.title}</h3>
+              <p className="text-sm text-gray-700">{feature.desc}</p>
+            </div>
+          ))}
         </div>
       </section>
 
       <footer className="z-10 w-full text-center py-8 text-sm text-gray-500">
-        Made with ♥ — Mood-Based Travel Recommender
+        Made with ❤️ — Mood-Based Travel Recommender
       </footer>
 
-      {/* Subtle animated wave at bottom */}
+      {/* 🌊 Animated Wave */}
       <svg
-        className="absolute bottom-0 left-0 w-full h-40 opacity-30"
+        className="absolute bottom-0 left-0 w-full h-40 opacity-40"
         viewBox="0 0 1440 320"
         preserveAspectRatio="none"
       >
