@@ -5,11 +5,21 @@ import DestinationCard from "../../components/DestinationCard";
 export default function WishlistPage() {
   const [wishlist, setWishlist] = useState<any[]>([]);
 
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const raw = localStorage.getItem("wishlist");
       setWishlist(raw ? JSON.parse(raw) : []);
     }
+    // Listen for wishlist changes (unfavorite)
+    function handleWishlistChange() {
+      if (typeof window !== "undefined") {
+        const raw = localStorage.getItem("wishlist");
+        setWishlist(raw ? JSON.parse(raw) : []);
+      }
+    }
+    window.addEventListener("wishlistChanged", handleWishlistChange);
+    return () => window.removeEventListener("wishlistChanged", handleWishlistChange);
   }, []);
 
   return (
@@ -21,8 +31,10 @@ export default function WishlistPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {wishlist.map((d) => (
             <div key={d.id} className="relative group">
-              <DestinationCard data={d} />
-              <div className="absolute top-4 right-4 bg-white/90 rounded-full px-3 py-1 text-xs text-pink-600 font-semibold shadow">Wishlisted</div>
+              <DestinationCard data={d} onUnfavorite={() => {
+                // Remove from UI immediately
+                setWishlist((prev) => prev.filter((item) => item.id !== d.id));
+              }} />
               {/* City details overlay */}
               <div className="absolute bottom-0 left-0 right-0 bg-white/95 bg-opacity-90 rounded-b-xl p-4 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
                 <h4 className="text-lg font-bold mb-1 text-indigo-700">{d.name}{d.country ? `, ${d.country}` : ''}</h4>

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import DestinationCard from "../../components/DestinationCard";
+import GlobalWishlistButton from "../../components/GlobalWishlistButton";
 
 const MOODS = ["happy", "tired", "sad", "excited", "stressed"];
 
@@ -95,45 +96,51 @@ export default function RecommendPage() {
 
   if (mood) {
     return (
-      <section className="p-8">
-        <h2 className="text-2xl font-semibold mb-4">
-          Recommendations for "{mood}"
-        </h2>
-        {loading && <p>Loading...</p>}
-        {!loading && results.length === 0 && <p>No results.</p>}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-          {results.map((d) => (
-            <DestinationCard key={d.id} data={d} />
-          ))}
-        </div>
-      </section>
+      <>
+        <GlobalWishlistButton />
+        <section className="p-8">
+          <h2 className="text-2xl font-semibold mb-4">
+            Recommendations for "{mood}"
+          </h2>
+          {loading && <p>Loading...</p>}
+          {!loading && results.length === 0 && <p>No results.</p>}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+            {results.map((d) => (
+              <DestinationCard key={d.id} data={d} />
+            ))}
+          </div>
+        </section>
+      </>
     );
   }
 
   // Show all moods
   return (
-    <section className="p-8">
-      <h2 className="text-2xl font-semibold mb-4">All Mood Recommendations</h2>
-      <div className="space-y-12">
-        {MOODS.map((m) => (
-          <div key={m} className="">
-            <h3 className="text-xl font-bold mb-3 capitalize flex items-center gap-2">
-              {m} mood
-              {moodLoading[m] && (
-                <span className="ml-2 animate-spin inline-block w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full"></span>
-              )}
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[60px]">
-              {(!moodLoading[m] && (allResults[m]?.length === 0)) && (
-                <div className="col-span-full text-gray-400 italic">No results.</div>
-              )}
-              {(allResults[m] || []).map((d) => (
-                <DestinationCard key={d.id} data={d} />
-              ))}
+    <>
+      <GlobalWishlistButton />
+      <section className="p-8">
+        <h2 className="text-2xl font-semibold mb-4">All Mood Recommendations</h2>
+        <div className="space-y-12">
+          {MOODS.map((m) => (
+            <div key={m} className="">
+              <h3 className="text-xl font-bold mb-3 capitalize flex items-center gap-2">
+                {m} mood
+                {moodLoading[m] && (
+                  <span className="ml-2 animate-spin inline-block w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full"></span>
+                )}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[60px]">
+                {(!moodLoading[m] && (allResults[m]?.length === 0)) && (
+                  <div className="col-span-full text-gray-400 italic">No results.</div>
+                )}
+                {(allResults[m] || []).map((d) => (
+                  <DestinationCard key={d.id} data={d} />
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-    </section>
+          ))}
+        </div>
+      </section>
+    </>
   );
 }
