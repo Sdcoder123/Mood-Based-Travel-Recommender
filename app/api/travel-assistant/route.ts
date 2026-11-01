@@ -209,8 +209,8 @@ export async function POST(request: Request) {
         if (errorMessage.includes("status 402")) {
           fallbackNotice = "OpenRouter inference is unavailable due to credits or billing, so this reply uses the local travel guide. ";
         } else {
-          console.error("Travel assistant OpenRouter request failed:", errorMessage);
-          return NextResponse.json({ error: "OpenRouter inference is unavailable. Check the API key, selected model, and account limits." }, { status: 502 });
+          console.warn("OpenRouter inference unavailable; using local guide:", errorMessage);
+          fallbackNotice = "The AI guide is temporarily unavailable, so this reply uses the local travel guide. ";
         }
       }
     } else if (huggingFaceToken) {
@@ -223,8 +223,8 @@ export async function POST(request: Request) {
         if (errorMessage.includes("status 402")) {
           fallbackNotice = "Hugging Face inference is unavailable due to credits or billing, so this reply uses the local travel guide. ";
         } else {
-          console.error("Travel assistant Hugging Face request failed:", errorMessage);
-          return NextResponse.json({ error: "Hugging Face inference is unavailable. Check that the token has Inference Providers permission and that the selected model is available." }, { status: 502 });
+          console.warn("Hugging Face inference unavailable; using local guide:", errorMessage);
+          fallbackNotice = "The AI guide is temporarily unavailable, so this reply uses the local travel guide. ";
         }
       }
     }

@@ -7,6 +7,8 @@ type Destination = {
   name: string;
   country?: string;
   photoUrl?: string;
+  latitude?: number;
+  longitude?: number;
 };
 
 type ForecastDay = {
@@ -64,12 +66,17 @@ export default function TravelAssistant({
   const [sending, setSending] = useState(false);
   const [chatError, setChatError] = useState("");
   const [provider, setProvider] = useState("Checking guide…");
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const messageListRef = useRef<HTMLDivElement>(null);
 
   const greeting = destination
     ? `Let's make ${destination.name} work for your ${mood || "next"} trip. I'm checking its local forecast now. Ask me about conditions, packing, or how to shape your day.`
     : `I'm your trip-planning companion for a ${mood || "new"} mood. Pick a destination to add its live forecast, or ask me how to plan at a pace that feels right.`;
+  const guideStatus = provider === "Checking guide…"
+    ? "Preparing your guide"
+    : provider === "OpenRouter" || provider === "Hugging Face"
+      ? "AI trip companion"
+      : "Trip companion ready";
 
   useEffect(() => {
     fetch("/api/travel-assistant")
@@ -77,6 +84,14 @@ export default function TravelAssistant({
       .then((data) => setProvider(data.provider || "Local guide"))
       .catch(() => setProvider("Local guide"));
   }, []);
+
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 768px)");
+    const syncVisibility = () => setOpen(desktop.matches || Boolean(destination));
+    syncVisibility();
+    desktop.addEventListener("change", syncVisibility);
+    return () => desktop.removeEventListener("change", syncVisibility);
+  }, [destination?.id]);
 
   useEffect(() => {
     const messageList = messageListRef.current;
@@ -92,7 +107,13 @@ export default function TravelAssistant({
     if (!destination) return () => { cancelled = true; };
 
     setWeatherLoading(true);
-    fetch(`/api/city-details?city=${encodeURIComponent(destination.name)}`)
+    const cityParams = new URLSearchParams({ city: destination.name });
+    if (destination.latitude !== undefined && destination.longitude !== undefined) {
+      cityParams.set("latitude", String(destination.latitude));
+      cityParams.set("longitude", String(destination.longitude));
+      if (destination.country) cityParams.set("country", destination.country);
+    }
+    fetch(`/api/city-details?${cityParams.toString()}`)
       .then(async (response) => {
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Forecast unavailable.");
@@ -106,7 +127,7 @@ export default function TravelAssistant({
       });
 
     return () => { cancelled = true; };
-  }, [mood, destination?.id, destination?.name]);
+  }, [mood, destination?.id, destination?.name, destination?.latitude, destination?.longitude]);
 
   async function sendMessage(event?: FormEvent<HTMLFormElement>, prompt?: string) {
     event?.preventDefault();
@@ -167,9 +188,9 @@ export default function TravelAssistant({
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-200">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" aria-hidden="true" />{provider}
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" aria-hidden="true" />{guideStatus}
             </p>
-            <h2 className="mt-1 text-lg font-semibold">Your travel guide</h2>
+            <h2 className="mt-1 text-lg font-semibold">Roamly</h2>
           </div>
           <div className="flex items-center gap-1">
             <button type="button" onClick={() => setOpen(false)} title="Minimize chat" aria-label="Minimize chat" className="flex h-9 w-9 items-center justify-center rounded-md text-lg text-white/80 transition hover:bg-white/10 hover:text-white">−</button>

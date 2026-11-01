@@ -2,32 +2,37 @@ import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const namePrefix = url.searchParams.get("namePrefix") || "ban"; // example default
+  const name = (url.searchParams.get("search") || url.searchParams.get("name") || url.searchParams.get("namePrefix") || "").trim();
+  const limitValue = Number(url.searchParams.get("limit") || "8");
+  const limit = Number.isFinite(limitValue) ? Math.min(10, Math.max(1, Math.floor(limitValue))) : 8;
 
-  const apiKey = process.env.GEODB_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: "GEODB_API_KEY not configured" }, { status: 500 });
-  }
+  if (name.length < 2) return NextResponse.json({ cities: [] });
 
   try {
-    const res = await fetch(
-      `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${encodeURIComponent(namePrefix)}&limit=10`,
-      {
-        headers: {
-          "X-RapidAPI-Key": apiKey,
-          "X-RapidAPI-Host": "wft-geo-db.p.rapidapi.com",
-        },
-      }
-    );
+    const apiUrl = new URL("https://geocoding-api.open-meteo.com/v1/search");
+    apiUrl.searchParams.set("name", name.slice(0, 80));
+    apiUrl.searchParams.set("count", String(limit));
+    apiUrl.searchParams.set("language", "en");
+    apiUrl.searchParams.set("format", "json");
 
-    if (!res.ok) {
-      const text = await res.text();
-      return NextResponse.json({ error: "GeoDB fetch failed", details: text }, { status: res.status });
-    }
+    const response = await fetch(apiUrl, { next: { revalidate: 3600 } });
+    if (!response.ok) return NextResponse.json({ error: "City search is temporarily unavailable." }, { status: 502 });
 
-    const data = await res.json();
-    return NextResponse.json(data);
-  } catch (err: any) {
-    return NextResponse.json({ error: err?.message || String(err) }, { status: 500 });
+    const result = await response.json();
+    const cities = (result.results || []).map((city: any) => ({
+      id: city.id,
+      name: city.name,
+      country: city.country,
+      countryCode: city.country_code,
+      region: city.admin1,
+      latitude: city.latitude,
+      longitude: city.longitude,
+      population: city.population,
+      timezone: city.timezone
+    }));
+
+    return NextResponse.json({ cities, source: "Open-Meteo" });
+  } catch {
+    return NextResponse.json({ error: "City search is temporarily unavailable." }, { status: 502 });
   }
 }

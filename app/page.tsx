@@ -2,100 +2,40 @@ import MoodSelector from "@/components/MoodSelector";
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-blue-100 via-white to-pink-100">
-      {/* 🌈 Textured background layers */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.6),transparent_70%)]"></div>
-      <div className="absolute inset-0 bg-[url('/noise-texture.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
-
-      {/* Blurred gradient blobs for depth */}
-      <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full bg-gradient-to-tr from-pink-400 to-indigo-500 opacity-30 blur-3xl animate-blob" />
-      <div className="pointer-events-none absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-gradient-to-tr from-yellow-300 to-teal-400 opacity-25 blur-3xl animate-blob animation-delay-2000" />
-
-      <section className="z-10 w-full max-w-6xl px-6 py-12">
-        <div className="text-center">
-          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-fuchsia-600 to-rose-500 animate-gradient-x drop-shadow-[0_3px_6px_rgba(0,0,0,0.15)]">
-            Find your next trip based on your mood 🌤️
-          </h1>
-
-          <p className="mx-auto max-w-2xl text-lg text-gray-700 mb-8 leading-relaxed">
-            Tell us how you feel and we’ll suggest destinations with photos and live weather — uniquely tuned to your vibe.
+    <div className="min-h-screen bg-[#f7f6f1]">
+      <section className="relative isolate flex min-h-[330px] h-[43svh] max-h-[520px] items-end overflow-hidden bg-[#1d392f]">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-cover bg-center"
+          style={{ backgroundImage: "url(https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=2200&q=85)" }}
+        />
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-[#101d18]/80 via-[#101d18]/20 to-[#101d18]/10" />
+        <div className="mx-auto w-full max-w-[1440px] px-5 pb-10 pt-16 md:px-10 md:pb-14">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#e4c995]">A little closer to your kind of escape</p>
+          <h1 className="font-serif text-5xl leading-[0.98] text-white sm:text-6xl md:text-7xl">Mood Travel</h1>
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-white/85 md:text-lg">
+            Start with how you want to feel. Find a place that meets you there.
           </p>
-
-          {/* 🎭 Mood Selection Card */}
-          <div className="mx-auto max-w-2xl">
-            <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/60 hover:shadow-[0_0_25px_rgba(99,102,241,0.3)] transition">
-              <div className="mb-4 text-sm text-gray-500 tracking-wide uppercase">
-                Pick a mood to get started
-              </div>
-
-              <div className="transform-gpu">
-                <MoodSelector />
-              </div>
-
-              {/* Buttons */}
-              <div className="mt-8 flex items-center justify-center gap-5">
-                <a
-                  href="/recommend?mood=happy"
-                  className="inline-flex items-center gap-3 bg-gradient-to-r from-indigo-500 to-pink-500 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:shadow-[0_0_20px_rgba(236,72,153,0.6)] transition-transform transform hover:-translate-y-1 hover:scale-105"
-                >
-                  ✨ Try “Happy” Mood
-                </a>
-                <a
-                  href="/recommend"
-                  className="text-sm text-indigo-700 hover:underline hover:text-pink-600 transition"
-                >
-                  See all recommendations →
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 💡 Feature highlights */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            {
-              title: "Live Weather Insights",
-              desc: "Each recommendation comes with real-time weather updates — perfect for spontaneous getaways.",
-              color: "from-blue-200 to-blue-50",
-            },
-            {
-              title: "Vibrant Imagery",
-              desc: "Breathtaking Unsplash photos bring each destination to life — before you even pack your bags.",
-              color: "from-pink-200 to-pink-50",
-            },
-            {
-              title: "Mood Travel",
-              desc: "Experience AI-powered suggestions that match your emotions — turning feelings into destinations.",
-              color: "from-teal-200 to-teal-50",
-            },
-          ].map((feature, i) => (
-            <div
-              key={i}
-              className={`rounded-2xl p-6 bg-gradient-to-br ${feature.color} shadow hover:shadow-xl border border-white/50 hover:-translate-y-1 transition-transform`}
-            >
-              <h3 className="text-lg font-semibold mb-2 text-gray-800">{feature.title}</h3>
-              <p className="text-sm text-gray-700">{feature.desc}</p>
-            </div>
-          ))}
         </div>
       </section>
 
-      <footer className="z-10 w-full text-center py-8 text-sm text-gray-500">
-        Made with ❤️ — Mood-Based Travel Recommender
-      </footer>
-
-      {/* 🌊 Animated Wave */}
-      <svg
-        className="absolute bottom-0 left-0 w-full h-40 opacity-40"
-        viewBox="0 0 1440 320"
-        preserveAspectRatio="none"
-      >
-        <path
-          fill="#fff"
-          d="M0,160L48,149.3C96,139,192,117,288,112C384,107,480,117,576,117.3C672,117,768,107,864,112C960,117,1056,139,1152,165.3C1248,192,1344,224,1392,240L1440,256L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-        ></path>
-      </svg>
-    </main>
+      <section className="mx-auto max-w-[1440px] px-5 pb-14 pt-9 md:px-10 md:pb-20 md:pt-12">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#52766b]">Your starting point</p>
+            <h2 className="mt-2 font-serif text-3xl text-[#183d36] md:text-4xl">What kind of trip feels right?</h2>
+          </div>
+          <a href="/recommend" className="text-sm font-semibold text-[#315e50] underline-offset-4 hover:underline">
+            Browse every destination <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+        <MoodSelector />
+        <div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-stone-300 pt-5 text-xs text-stone-600">
+          <span><strong className="mr-2 text-[#183d36]">01</strong>Choose a feeling</span>
+          <span><strong className="mr-2 text-[#183d36]">02</strong>Explore a place</span>
+          <span><strong className="mr-2 text-[#183d36]">03</strong>Make it yours with your guide</span>
+        </div>
+      </section>
+    </div>
   );
 }

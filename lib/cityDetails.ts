@@ -22,19 +22,39 @@ const weatherDescriptions: Record<number, string> = {
   99: "thunderstorms with heavy hail"
 };
 
-export const getCityDetails = async (city: string) => {
-  const geocodingUrl = new URL("https://geocoding-api.open-meteo.com/v1/search");
-  geocodingUrl.searchParams.set("name", city);
-  geocodingUrl.searchParams.set("count", "1");
-  geocodingUrl.searchParams.set("language", "en");
-  geocodingUrl.searchParams.set("format", "json");
+export const getCityDetails = async (
+  city: string,
+  coordinates?: { latitude: number; longitude: number; country?: string; region?: string }
+) => {
+  let location: any;
+  if (
+    coordinates &&
+    Number.isFinite(coordinates.latitude) &&
+    Number.isFinite(coordinates.longitude) &&
+    Math.abs(coordinates.latitude) <= 90 &&
+    Math.abs(coordinates.longitude) <= 180
+  ) {
+    location = {
+      name: city,
+      country: coordinates.country,
+      admin1: coordinates.region,
+      latitude: coordinates.latitude,
+      longitude: coordinates.longitude
+    };
+  } else {
+    const geocodingUrl = new URL("https://geocoding-api.open-meteo.com/v1/search");
+    geocodingUrl.searchParams.set("name", city);
+    geocodingUrl.searchParams.set("count", "1");
+    geocodingUrl.searchParams.set("language", "en");
+    geocodingUrl.searchParams.set("format", "json");
 
-  const geocodingResponse = await fetch(geocodingUrl, { next: { revalidate: 3600 } });
-  if (!geocodingResponse.ok) throw new Error("Could not look up this destination right now.");
+    const geocodingResponse = await fetch(geocodingUrl, { next: { revalidate: 3600 } });
+    if (!geocodingResponse.ok) throw new Error("Could not look up this destination right now.");
 
-  const geocoding = await geocodingResponse.json();
-  const location = geocoding.results?.[0];
-  if (!location) throw new Error(`No location found for ${city}.`);
+    const geocoding = await geocodingResponse.json();
+    location = geocoding.results?.[0];
+    if (!location) throw new Error(`No location found for ${city}.`);
+  }
 
   const forecastUrl = new URL("https://api.open-meteo.com/v1/forecast");
   forecastUrl.searchParams.set("latitude", String(location.latitude));
