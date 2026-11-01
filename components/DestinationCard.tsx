@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 
-export default function DestinationCard({ data, onUnfavorite }: { data: any, onUnfavorite?: () => void }) {
+export default function DestinationCard({ data, onUnfavorite, onSelect }: { data: any, onUnfavorite?: () => void, onSelect?: (data: any) => void }) {
   const [fav, setFav] = useState(() => {
     if (typeof window === 'undefined') return false;
     const raw = localStorage.getItem('wishlist');
@@ -17,6 +17,9 @@ export default function DestinationCard({ data, onUnfavorite }: { data: any, onU
   const [showModal, setShowModal] = useState(false);
   const { name, country, weather, photos } = data || {};
   const img = photos?.results?.[0]?.urls?.regular || photos?.results?.[0]?.urls?.small || "/icons/placeholder.png";
+  const photo = photos?.results?.[0];
+  const photoCredit = photo?.attribution || photo?.user?.name;
+  const photoLink = photo?.sourceUrl || photo?.user?.links?.html;
   const temp = weather?.main?.temp;
   const desc = weather?.weather?.[0]?.description;
   const iconCode = weather?.weather?.[0]?.icon;
@@ -80,11 +83,21 @@ export default function DestinationCard({ data, onUnfavorite }: { data: any, onU
             <div>
               <h3 className="text-lg font-semibold">{name}{country ? `, ${country}` : ""}</h3>
               <p className="text-sm text-gray-500 mt-1 capitalize">{desc || "Weather unavailable"}</p>
+              {photoCredit && photoLink && (
+                <a href={photoLink} target="_blank" rel="noreferrer" className="mt-1 inline-block max-w-full truncate text-[10px] text-stone-500 hover:underline">
+                  Photo: {photoCredit}{photo?.license ? ` · ${photo.license}` : ""}
+                </a>
+              )}
             </div>
           </div>
 
           <div className="mt-4 flex items-center justify-between">
             <a href={`https://www.google.com/search?q=${encodeURIComponent(name + (country ? `, ${country}` : ''))}`} target="_blank" rel="noreferrer" className="text-sm text-indigo-600 hover:underline">Explore</a>
+            {onSelect && (
+              <button type="button" onClick={() => onSelect(data)} className="text-sm font-medium text-[#315e50] hover:underline">
+                Ask guide
+              </button>
+            )}
             <div className="text-xs text-gray-500">Updated: {weather ? new Date().toLocaleTimeString() : '—'}</div>
           </div>
         </div>

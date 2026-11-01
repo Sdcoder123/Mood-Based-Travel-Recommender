@@ -94,12 +94,46 @@ export async function getWeatherForCity(city: string) {
 
 export async function getPhotosForCity(city: string) {
   try {
-    // prefer server-side secret, but fall back to NEXT_PUBLIC_* if only that is set
     const key = process.env.UNSPLASH_ACCESS_KEY || process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY;
-    if (!key) return null;
-    const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(city)}&per_page=6&orientation=landscape&client_id=${key}`;
-    const res = await fetch(url);
-    return res.ok ? res.json() : null;
+    if (key) {
+      const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(city)}&per_page=6&orientation=landscape&client_id=${key}`;
+      const response = await fetch(url);
+      if (response.ok) return response.json();
+    }
+
+    const commonsUrl = new URL("https://commons.wikimedia.org/w/api.php");
+    commonsUrl.searchParams.set("action", "query");
+    commonsUrl.searchParams.set("generator", "search");
+    commonsUrl.searchParams.set("gsrsearch", `${city} city landscape`);
+    commonsUrl.searchParams.set("gsrnamespace", "6");
+    commonsUrl.searchParams.set("gsrlimit", "6");
+    commonsUrl.searchParams.set("prop", "imageinfo");
+    commonsUrl.searchParams.set("iiprop", "url|extmetadata");
+    commonsUrl.searchParams.set("iiurlwidth", "1000");
+    commonsUrl.searchParams.set("format", "json");
+
+    const response = await fetch(commonsUrl, {
+      headers: { "User-Agent": "MoodBasedTravelRecommender/1.0 (destination photo lookup)" },
+      next: { revalidate: 86400 }
+    });
+    if (!response.ok) return null;
+
+    const json = await response.json();
+    const pages = Object.values(json?.query?.pages || {}) as any[];
+    const results = pages.flatMap((page) => {
+      const image = page.imageinfo?.[0];
+      if (!image?.thumburl) return [];
+      const metadata = image.extmetadata || {};
+      const attribution = (metadata.Artist?.value || "").replace(/<[^>]*>/g, "").replace(/&amp;/g, "&").trim();
+      return [{
+        urls: { regular: image.thumburl, small: image.thumburl },
+        attribution,
+        license: metadata.LicenseShortName?.value || "Open license",
+        sourceUrl: `https://commons.wikimedia.org/?curid=${page.pageid}`
+      }];
+    });
+
+    return results.length ? { results, source: "Wikimedia Commons" } : null;
   } catch (err) {
     return null;
   }

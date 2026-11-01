@@ -2,8 +2,11 @@
 import { useEffect, useState } from "react";
 import DestinationCard from "../../components/DestinationCard";
 import GlobalWishlistButton from "../../components/GlobalWishlistButton";
+import TravelAssistant from "../../components/TravelAssistant";
 
 const MOODS = ["happy", "tired", "sad", "excited", "stressed"];
+
+type SelectedDestination = { id: string | number; name: string; country?: string; mood: string; photoUrl?: string };
 
 // Persistent cache using localStorage
 const getMoodCache = () => {
@@ -29,13 +32,15 @@ export default function RecommendPage() {
   const [allResults, setAllResults] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(false);
   const [moodLoading, setMoodLoading] = useState<Record<string, boolean>>({});
+  const [selectedDestination, setSelectedDestination] = useState<SelectedDestination | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const m = params.get("mood");
-    if (m) {
-      setMood(m);
-      fetchData(m);
+    if (m && MOODS.includes(m.toLowerCase())) {
+      const selectedMood = m.toLowerCase();
+      setMood(selectedMood);
+      fetchData(selectedMood);
     } else {
       fetchAllMoods();
     }
@@ -94,53 +99,85 @@ export default function RecommendPage() {
     }
   }
 
-  if (mood) {
-    return (
-      <>
-        <GlobalWishlistButton />
-        <section className="p-8">
-          <h2 className="text-2xl font-semibold mb-4">
-            Recommendations for "{mood}"
-          </h2>
-          {loading && <p>Loading...</p>}
-          {!loading && results.length === 0 && <p>No results.</p>}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-            {results.map((d) => (
-              <DestinationCard key={d.id} data={d} />
-            ))}
-          </div>
-        </section>
-      </>
-    );
-  }
+  const assistantMood = mood || selectedDestination?.mood || null;
+  const showAssistant = Boolean(assistantMood || selectedDestination);
 
-  // Show all moods
   return (
     <>
-      <GlobalWishlistButton />
-      <section className="p-8">
-        <h2 className="text-2xl font-semibold mb-4">All Mood Recommendations</h2>
-        <div className="space-y-12">
-          {MOODS.map((m) => (
-            <div key={m} className="">
-              <h3 className="text-xl font-bold mb-3 capitalize flex items-center gap-2">
-                {m} mood
-                {moodLoading[m] && (
-                  <span className="ml-2 animate-spin inline-block w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full"></span>
-                )}
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[60px]">
-                {(!moodLoading[m] && (allResults[m]?.length === 0)) && (
-                  <div className="col-span-full text-gray-400 italic">No results.</div>
-                )}
-                {(allResults[m] || []).map((d) => (
-                  <DestinationCard key={d.id} data={d} />
-                ))}
+      <section className="mx-auto max-w-[1440px] px-5 py-8 md:px-8">
+        <div className="grid items-start gap-8">
+          <div className="min-w-0">
+            <div className="mb-7 flex flex-wrap items-end justify-between gap-4 border-b border-stone-200 pb-5">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#52766b]">Mood-based travel</p>
+                <h1 className="mt-1 text-3xl font-semibold tracking-tight text-stone-900">
+                  {mood ? `For a ${mood} kind of day` : "Find your kind of somewhere"}
+                </h1>
+                <p className="mt-2 max-w-2xl text-sm text-stone-600">
+                  {mood ? "Explore places that fit your pace, then ask your guide to make the details useful." : "Choose a destination to open its local forecast and start planning with your guide."}
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-4">
+                <GlobalWishlistButton />
+                {mood && <a className="text-sm font-medium text-[#315e50] hover:underline" href="/recommend">Browse all moods</a>}
               </div>
             </div>
-          ))}
+
+            {mood ? (
+              <>
+                {loading && <p className="py-8 text-sm text-stone-500">Finding destinations for your mood…</p>}
+                {!loading && results.length === 0 && <p className="py-8 text-sm text-stone-500">No destinations found for this mood yet.</p>}
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+                  {results.map((destination) => (
+                    <DestinationCard
+                      key={destination.id}
+                      data={destination}
+                      onSelect={(selected) => setSelectedDestination({
+                        ...selected,
+                        mood,
+                        photoUrl: selected.photos?.results?.[0]?.urls?.regular || selected.photos?.results?.[0]?.urls?.small
+                      })}
+                    />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="space-y-10">
+                {MOODS.map((currentMood) => (
+                  <section key={currentMood}>
+                    <div className="mb-3 flex items-center gap-3">
+                      <h2 className="text-lg font-semibold capitalize text-stone-800">{currentMood} mood</h2>
+                      {moodLoading[currentMood] && <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#52766b] border-t-transparent" aria-label="Loading destinations" />}
+                      <a className="text-xs font-medium text-[#315e50] hover:underline" href={`/recommend?mood=${currentMood}`}>Explore mood</a>
+                    </div>
+                    <div className="grid min-h-[60px] grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+                      {!moodLoading[currentMood] && !allResults[currentMood]?.length && <p className="text-sm italic text-stone-500">No destinations available.</p>}
+                      {(allResults[currentMood] || []).map((destination) => (
+                        <DestinationCard
+                          key={destination.id}
+                          data={destination}
+                          onSelect={(selected) => setSelectedDestination({
+                            ...selected,
+                            mood: currentMood,
+                            photoUrl: selected.photos?.results?.[0]?.urls?.regular || selected.photos?.results?.[0]?.urls?.small
+                          })}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </section>
+      {showAssistant && (
+        <TravelAssistant
+          key={`${assistantMood}-${selectedDestination?.id || "mood"}`}
+          mood={assistantMood}
+          destination={selectedDestination}
+        />
+      )}
     </>
   );
 }
